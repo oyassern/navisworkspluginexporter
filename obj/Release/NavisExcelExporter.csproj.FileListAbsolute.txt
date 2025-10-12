@@ -1,0 +1,2 @@
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\Release\NavisExcelExporter.csproj.AssemblyReference.cache
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\Release\NavisExcelExporter.csproj.CoreCompileInputs.cache

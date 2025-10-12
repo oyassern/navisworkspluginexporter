@@ -1,0 +1,8 @@
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\x64\Release\NavisExcelExporter.csproj.AssemblyReference.cache
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\x64\Release\NavisExcelExporter.csproj.CoreCompileInputs.cache
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\bin\Release\NavisExcelExporter.dll
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\bin\Release\NavisExcelExporter.pdb
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\bin\Release\EPPlus.dll
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\x64\Release\NavisExc.F08F67CE.Up2Date
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\x64\Release\NavisExcelExporter.dll
+C:\Users\oyahmed\Desktop\oyahmed\UoA\CIVE 603\Project\cursor\obj\x64\Release\NavisExcelExporter.pdb

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AddInManifest version="1" xmlns="http://www.autodesk.com/navisworks/addins">
+  <ApplicationPlugin id="NavisExcelExporter.FullModelExportPlugin" 
+                     version="1.0.0" 
+                     vendorId="Omar" 
+                     vendorDescription="Omar" 
+                     loadOnStartup="False">
+    <DisplayName>Export Full Model to Excel</DisplayName>
+    <Description>Exports all model data to an Excel file with element properties, coordinates, and metadata. Compatible with Navisworks Manage 2026.</Description>
+    <Assembly>NavisExcelExporter.dll</Assembly>
+    <Type>AddInPlugin</Type>
+  </ApplicationPlugin>
+</AddInManifest>

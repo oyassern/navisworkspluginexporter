@@ -46,6 +46,14 @@
       <HintPath>packages\EPPlus.6.2.10\lib\net48\EPPlus.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EPPlus.Interfaces">
+      <HintPath>bin\Release\EPPlus.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="EPPlus.System.Drawing">
+      <HintPath>bin\Release\EPPlus.System.Drawing.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream">
       <HintPath>bin\Release\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
       <Private>True</Private>

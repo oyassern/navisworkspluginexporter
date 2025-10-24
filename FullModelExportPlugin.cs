@@ -27,16 +27,33 @@ namespace NavisExcelExporter
                     return 0;
                 }
 
-                using (var progressForm = new ProgressForm())
+                using (var selectionForm = new SelectionForm(document))
                 {
-                    progressForm.Show();
-                    System.Windows.Forms.Application.DoEvents();
+                    var result = selectionForm.ShowDialog();
+                    if (result != DialogResult.OK)
+                    {
+                        return 0; // user cancelled
+                    }
 
-                    string excelFilePath = ExportModelToExcel(document, progressForm);
-                    progressForm.Close();
+                    var selectedItems = selectionForm.GetCheckedItems().ToList();
+                    if (selectedItems.Count == 0)
+                    {
+                        MessageBox.Show("No items selected for export.", "Nothing Selected", 
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return 0;
+                    }
 
-                    MessageBox.Show($"Model data exported successfully!\n\nFile saved to:\n{excelFilePath}", 
-                        "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    using (var progressForm = new ProgressForm())
+                    {
+                        progressForm.Show();
+                        System.Windows.Forms.Application.DoEvents();
+
+                        string excelFilePath = ExportModelToExcel(selectedItems, progressForm);
+                        progressForm.Close();
+
+                        MessageBox.Show($"Model data exported successfully!\n\nFile saved to:\n{excelFilePath}", 
+                            "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
 
                 return 0;
@@ -49,7 +66,7 @@ namespace NavisExcelExporter
             }
         }
 
-        private string ExportModelToExcel(Document document, ProgressForm progressForm)
+        private string ExportModelToExcel(IEnumerable<ModelItem> selectedRoots, ProgressForm progressForm)
         {
             string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             string excelFilePath = Path.Combine(desktopPath, "NavisModelData.xlsx");
@@ -59,9 +76,9 @@ namespace NavisExcelExporter
                 File.Delete(excelFilePath);
             }
 
-            // PASS 1: Collect all items and their properties to determine all unique columns
+            // PASS 1: Collect all items (from selection) and their properties to determine all unique columns
             progressForm.SetProgress(0, 100, "Pass 1: Scanning properties...");
-            var allItems = GetAllModelItems(document).ToList();
+            var allItems = GetAllModelItems(selectedRoots).ToList();
             int totalItems = allItems.Count;
 
             var allPropertyKeys = new HashSet<string>();
@@ -296,6 +313,18 @@ namespace NavisExcelExporter
             }
         }
 
+        private IEnumerable<ModelItem> GetAllModelItems(IEnumerable<ModelItem> roots)
+        {
+            foreach (var r in roots)
+            {
+                yield return r;
+                foreach (var c in GetAllChildren(r))
+                {
+                    yield return c;
+                }
+            }
+        }
+
         private IEnumerable<ModelItem> GetAllChildren(ModelItem parent)
         {
             foreach (var child in parent.Children)
@@ -359,6 +388,143 @@ namespace NavisExcelExporter
             statusLabel.Text = status;
             progressBar.Maximum = total;
             progressBar.Value = Math.Min(current, total);
+        }
+    }
+
+    public class SelectionForm : Form
+    {
+        private readonly Document _document;
+        private readonly TreeView _tree;
+        private readonly Button _okButton;
+        private readonly Button _cancelButton;
+
+        public SelectionForm(Document document)
+        {
+            _document = document;
+            Text = "Select Items to Export";
+            Size = new System.Drawing.Size(500, 600);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
+
+            _tree = new TreeView
+            {
+                Dock = DockStyle.Fill,
+                CheckBoxes = true
+            };
+
+            _okButton = new Button { Text = "Export", Dock = DockStyle.Right, Width = 100 };
+            _cancelButton = new Button { Text = "Cancel", Dock = DockStyle.Right, Width = 100 };
+
+            var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 40 };
+            bottomPanel.Controls.Add(_cancelButton);
+            bottomPanel.Controls.Add(_okButton);
+
+            Controls.Add(_tree);
+            Controls.Add(bottomPanel);
+
+            Load += SelectionForm_Load;
+            _okButton.Click += (s, e) => DialogResult = DialogResult.OK;
+            _cancelButton.Click += (s, e) => DialogResult = DialogResult.Cancel;
+            _tree.AfterCheck += Tree_AfterCheck;
+            _tree.BeforeExpand += Tree_BeforeExpand;
+        }
+
+        private void SelectionForm_Load(object sender, EventArgs e)
+        {
+            BuildTree();
+        }
+
+        private void BuildTree()
+        {
+            _tree.BeginUpdate();
+            _tree.Nodes.Clear();
+            foreach (var model in _document.Models)
+            {
+                var modelNode = new TreeNode(model.FileName) { Tag = model.RootItem };
+                foreach (var child in model.RootItem.Children)
+                {
+                    modelNode.Nodes.Add(BuildNodeShallow(child));
+                }
+                _tree.Nodes.Add(modelNode);
+            }
+            _tree.EndUpdate();
+        }
+
+        private const string PlaceholderTag = "__placeholder__";
+
+        private TreeNode BuildNodeShallow(ModelItem item)
+        {
+            var node = new TreeNode(item.DisplayName ?? item.ClassDisplayName ?? "(Item)") { Tag = item };
+            if (HasChildItems(item))
+            {
+                node.Nodes.Add(new TreeNode("…") { Tag = PlaceholderTag });
+            }
+            return node;
+        }
+
+        private bool HasChildItems(ModelItem item)
+        {
+            try { return item.Children != null && item.Children.Any(); }
+            catch { return false; }
+        }
+
+        private void Tree_BeforeExpand(object sender, TreeViewCancelEventArgs e)
+        {
+            if (e.Node.Nodes.Count == 1 && Equals(e.Node.Nodes[0].Tag, PlaceholderTag) && e.Node.Tag is ModelItem mi)
+            {
+                e.Node.Nodes.Clear();
+                foreach (var child in mi.Children)
+                {
+                    e.Node.Nodes.Add(BuildNodeShallow(child));
+                }
+            }
+        }
+
+        private bool _suppressAfterCheck = false;
+        private void Tree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (_suppressAfterCheck) return;
+            try
+            {
+                _suppressAfterCheck = true;
+                // Propagate check state to children for convenience
+                foreach (TreeNode child in e.Node.Nodes)
+                {
+                    child.Checked = e.Node.Checked;
+                }
+            }
+            finally
+            {
+                _suppressAfterCheck = false;
+            }
+        }
+
+        public IEnumerable<ModelItem> GetCheckedItems()
+        {
+            foreach (TreeNode root in _tree.Nodes)
+            {
+                foreach (var item in GetCheckedItemsRecursive(root))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        private IEnumerable<ModelItem> GetCheckedItemsRecursive(TreeNode node)
+        {
+            if (node.Checked && node.Tag is ModelItem mi)
+            {
+                // If node is checked, treat it as selected root and do not traverse deeper
+                yield return mi;
+                yield break;
+            }
+            foreach (TreeNode child in node.Nodes)
+            {
+                foreach (var c in GetCheckedItemsRecursive(child))
+                {
+                    yield return c;
+                }
+            }
         }
     }
 }

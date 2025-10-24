@@ -85,4 +85,11 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\EPPlus.6.2.10\build\EPPlus.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\EPPlus.6.2.10\build\EPPlus.targets'))" />
   </Target>
+  <!-- Post-build copy to Navisworks user plugin folder -->
+  <Target Name="PostBuildCopy" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginDest>C:\Users\oyahmed\AppData\Roaming\Autodesk\Navisworks Manage 2026\Plugins\NavisExcelExporter</PluginDest>
+    </PropertyGroup>
+    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -Command &quot;$dst='$(PluginDest)'; New-Item -ItemType Directory -Force -Path $dst | Out-Null; $files=@('$(TargetDir)NavisExcelExporter.dll','$(ProjectDir)NavisExcelExporter.addin','$(TargetDir)EPPlus.dll','$(TargetDir)EPPlus.Interfaces.dll','$(TargetDir)EPPlus.System.Drawing.dll','$(TargetDir)Microsoft.IO.RecyclableMemoryStream.dll','$(TargetDir)NavisExcelExporter.pdb') | Where-Object { Test-Path $_ }; Copy-Item -Force -Path $files -Destination $dst;&quot;" />
+  </Target>
 </Project>

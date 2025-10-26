@@ -42,6 +42,10 @@
       <HintPath>C:\Program Files\Autodesk\Navisworks Manage 2026\Autodesk.Navisworks.ComApi.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Autodesk.Navisworks.Interop.ComApi">
+      <HintPath>C:\Program Files\Autodesk\Navisworks Manage 2026\Autodesk.Navisworks.Interop.ComApi.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="EPPlus">
       <HintPath>packages\EPPlus.6.2.10\lib\net48\EPPlus.dll</HintPath>
       <Private>True</Private>

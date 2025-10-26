@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Plugins;
 using OfficeOpenXml;
@@ -13,6 +16,7 @@ namespace NavisExcelExporter
     [AddInPlugin(AddInLocation.AddIn)]
     public class FullModelExportPlugin : AddInPlugin
     {
+        private static readonly HttpClient _httpClient = new HttpClient();
         public override int Execute(params string[] parameters)
         {
             try
@@ -51,12 +55,22 @@ namespace NavisExcelExporter
                         string excelFilePath = ExportModelToExcel(selectedItems, progressForm);
                         progressForm.Close();
 
-                        MessageBox.Show($"Model data exported successfully!\n\nFile saved to:\n{excelFilePath}", 
-                            "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // Run AI automation immediately after export if requested
                         if (selectionForm.StartAutomation)
                         {
-                            MessageBox.Show("AI Automation workflow initiation requested.\n(This is a placeholder — hook your workflow here.)", "Automation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            try
+                            {
+                                SendToN8nAsync(excelFilePath).GetAwaiter().GetResult();
+                                MessageBox.Show("Excel file uploaded to n8n webhook successfully.", "Automation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            catch (Exception uploadEx)
+                            {
+                                MessageBox.Show($"Failed to upload to n8n webhook.\n\n{uploadEx.Message}", "Automation Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
                         }
+
+                        MessageBox.Show($"Model data exported successfully!\n\nFile saved to:\n{excelFilePath}",
+                            "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
@@ -70,10 +84,10 @@ namespace NavisExcelExporter
             }
         }
 
-        private string ExportModelToExcel(IEnumerable<ModelItem> selectedRoots, ProgressForm progressForm)
-        {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string excelFilePath = Path.Combine(desktopPath, "NavisModelData.xlsx");
+		private string ExportModelToExcel(IEnumerable<ModelItem> selectedRoots, ProgressForm progressForm)
+		{
+			string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+			string excelFilePath = Path.Combine(desktopPath, "NavisModelData.xlsx");
 
             if (File.Exists(excelFilePath))
             {
@@ -141,8 +155,29 @@ namespace NavisExcelExporter
                 package.SaveAs(new FileInfo(excelFilePath));
             }
 
-            return excelFilePath;
-        }
+			return excelFilePath;
+		}
+
+		private async Task SendToN8nAsync(string excelPath)
+		{
+			if (string.IsNullOrWhiteSpace(excelPath) || !File.Exists(excelPath))
+			{
+				throw new FileNotFoundException("Excel file not found for upload.", excelPath);
+			}
+
+			const string webhookUrl = "http://localhost:5678/webhook-test/nwx-export";
+
+			using (var form = new MultipartFormDataContent())
+			using (var stream = File.OpenRead(excelPath))
+			using (var fileContent = new StreamContent(stream))
+			{
+				fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+				form.Add(fileContent, "data", Path.GetFileName(excelPath));
+
+				var response = await _httpClient.PostAsync(webhookUrl, form).ConfigureAwait(false);
+				response.EnsureSuccessStatusCode();
+			}
+		}
 
         private Dictionary<string, object> ExtractItemData(ModelItem item, HashSet<string> allPropertyKeys)
         {
@@ -419,7 +454,7 @@ namespace NavisExcelExporter
 
             _okButton = new Button { Text = "Export", Dock = DockStyle.Right, Width = 100 };
             _cancelButton = new Button { Text = "Cancel", Dock = DockStyle.Right, Width = 100 };
-            _automationCheck = new CheckBox { Text = "Export and start AI Automation", Dock = DockStyle.Left, AutoSize = true };
+			_automationCheck = new CheckBox { Text = "Export and start AI Automation", Dock = DockStyle.Left, AutoSize = true, Checked = true };
 
             var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 40 };
             bottomPanel.Padding = new Padding(8, 10, 8, 8);

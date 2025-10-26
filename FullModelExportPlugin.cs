@@ -20,7 +20,7 @@ namespace NavisExcelExporter
     public class FullModelExportPlugin : AddInPlugin
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private static readonly string DebugLogPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), "NavisExporterDebug.log");
+        // Debug logging path removed after testing
         public override int Execute(params string[] parameters)
         {
             try
@@ -351,10 +351,7 @@ namespace NavisExcelExporter
                                 }
                                 // no else: raw already captured above
 
-                                if (System.Environment.GetEnvironmentVariable("NAVIS_EXPORT_DEBUG") == "1")
-                                {
-                                    try { System.IO.File.AppendAllText(DebugLogPath, $"[COM-TYPED] {key} => '{display ?? "<null>"}'\r\n"); } catch { }
-                                }
+                                // logging removed
                             }
                         }
                     }
@@ -384,10 +381,7 @@ namespace NavisExcelExporter
                         string uniqueKey = GetUniqueKey(key, data);
                         if (val != null) data[uniqueKey] = Convert.ToString(val); else data[uniqueKey] = "";
                         allKeys.Add(uniqueKey);
-                        if (System.Environment.GetEnvironmentVariable("NAVIS_EXPORT_DEBUG") == "1")
-                        {
-                            try { System.IO.File.AppendAllText(DebugLogPath, $"[COM-DYN] {key} => '{Convert.ToString(val) ?? "<null>"}'\r\n"); } catch { }
-                        }
+                        // logging removed
                     }
                 }
             }

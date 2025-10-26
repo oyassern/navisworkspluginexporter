@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Autodesk.Navisworks.Api.ComApi;
+using COM = Autodesk.Navisworks.Api.Interop.ComApi;
 using System.Reflection;
 using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Plugins;
@@ -308,46 +309,84 @@ namespace NavisExcelExporter
             {
                 var state = ComApiBridge.State;
                 var path = ComApiBridge.ToInwOaPath(item);
-                dynamic guiNode = state.GetGUIPropertyNode(path, true);
-                if (guiNode == null) return;
+                var guiNodeObj = state.GetGUIPropertyNode(path, true);
+                if (guiNodeObj == null) return;
 
+                // Preferred typed COM path
+                var node2 = guiNodeObj as COM.InwGUIPropertyNode2;
+                int foundTyped = 0;
+                if (node2 != null)
+                {
+                    try
+                    {
+                        foreach (COM.InwGUIAttribute2 cat in node2.GUIAttributes())
+                        {
+                            string catName = SafeName(cat.ClassUserName, cat.name);
+                            if (string.IsNullOrWhiteSpace(catName)) continue;
+
+                            // Properties() on attribute returns InwOaPropertyColl
+                            foreach (COM.InwOaProperty prop in cat.Properties())
+                            {
+                                string propName = SafeName(prop.UserName, prop.name);
+                                if (string.IsNullOrWhiteSpace(propName)) continue;
+
+                                string display = null;
+                                try
+                                {
+                                    var v = prop.value; // VARIANT
+                                    if (v != null)
+                                    {
+                                        display = Convert.ToString(v, System.Globalization.CultureInfo.InvariantCulture);
+                                    }
+                                }
+                                catch { }
+
+                                string key = $"{catName}.{propName}";
+                                string uniqueKey = GetUniqueKey(key, data);
+                                if (!string.IsNullOrEmpty(display))
+                                {
+                                    data[uniqueKey] = display;
+                                    allKeys.Add(uniqueKey);
+                                    foundTyped++;
+                                }
+                                // no else: raw already captured above
+
+                                if (System.Environment.GetEnvironmentVariable("NAVIS_EXPORT_DEBUG") == "1")
+                                {
+                                    try { System.IO.File.AppendAllText(DebugLogPath, $"[COM-TYPED] {key} => '{display ?? "<null>"}'\r\n"); } catch { }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                if (foundTyped > 0) return; // typed path succeeded
+
+                // Dynamic fallback (older builds / unexpected shapes)
+                dynamic guiNode = guiNodeObj;
                 System.Collections.IEnumerable categories = null;
                 try { categories = guiNode.GUIAttributes(); } catch { }
                 if (categories == null) return;
-                if (categories == null) return;
-
-                foreach (dynamic cat in categories)
+                foreach (var catDyn in categories)
                 {
-                    string catName = TryGetName(cat);
+                    string catName = TryGetName(catDyn);
                     if (string.IsNullOrWhiteSpace(catName)) continue;
-
                     System.Collections.IEnumerable props = null;
-                    try { props = cat.Properties(); } catch { }
-                    if (props == null)
-                    {
-                        try { props = guiNode.Properties(cat); } catch { }
-                    }
+                    try { props = guiNode.Properties(catDyn); } catch { }
                     if (props == null) continue;
-
-                    foreach (dynamic p in props)
+                    foreach (var pDyn in props)
                     {
-                        string propName = TryGetName(p);
+                        string propName = TryGetName(pDyn);
                         if (string.IsNullOrWhiteSpace(propName)) continue;
-                        object val = TryGetValue(p);
+                        object val = TryGetValue(pDyn);
                         string key = $"{catName}.{propName}";
                         string uniqueKey = GetUniqueKey(key, data);
-                        if (val != null)
-                        {
-                            data[uniqueKey] = Convert.ToString(val);
-                        }
-                        else
-                        {
-                            data[uniqueKey] = "";
-                        }
+                        if (val != null) data[uniqueKey] = Convert.ToString(val); else data[uniqueKey] = "";
                         allKeys.Add(uniqueKey);
                         if (System.Environment.GetEnvironmentVariable("NAVIS_EXPORT_DEBUG") == "1")
                         {
-                            try { System.IO.File.AppendAllText(DebugLogPath, $"[COM] {key} => '{Convert.ToString(val) ?? "<null>"}'\r\n"); } catch { }
+                            try { System.IO.File.AppendAllText(DebugLogPath, $"[COM-DYN] {key} => '{Convert.ToString(val) ?? "<null>"}'\r\n"); } catch { }
                         }
                     }
                 }
@@ -356,6 +395,15 @@ namespace NavisExcelExporter
             {
                 // ignore COM failures; .NET extraction remains
             }
+        }
+
+        private string SafeName(params string[] opts)
+        {
+            foreach (var s in opts)
+            {
+                if (!string.IsNullOrWhiteSpace(s)) return s;
+            }
+            return null;
         }
 
         private string TryGetName(object o)
@@ -382,11 +430,26 @@ namespace NavisExcelExporter
             {
                 var t = o.GetType();
                 // Prefer explicit string-returning members
-                var m = t.GetMethod("GetValueAsString") ?? t.GetMethod("get_DisplayString") ?? t.GetMethod("GetDisplayString");
-                if (m != null)
+                foreach (var name in new[] { "GetValueAsString", "GetDisplayString", "get_DisplayString" })
                 {
-                    var s = m.Invoke(o, null);
-                    if (s != null) return s;
+                    var methods = t.GetMethods().Where(mi => mi.Name == name).ToArray();
+                    foreach (var mi in methods)
+                    {
+                        var ps = mi.GetParameters();
+                        try
+                        {
+                            object result = null;
+                            if (ps.Length == 0)
+                                result = mi.Invoke(o, null);
+                            else if (ps.Length == 1)
+                                result = mi.Invoke(o, new object[] { true });
+                            else if (ps.Length == 2)
+                                result = mi.Invoke(o, new object[] { true, null });
+                            if (result != null)
+                                return result;
+                        }
+                        catch { }
+                    }
                 }
 
                 var p = t.GetProperty("DisplayString") ?? t.GetProperty("displaystring") ??
@@ -406,18 +469,31 @@ namespace NavisExcelExporter
                         var mp = vt.GetProperty("DisplayString") ?? vt.GetProperty("StringValue") ?? vt.GetProperty("ValueString");
                         if (mp != null)
                         {
-                            var sv = mp.GetValue(val, null);
-                            if (sv != null) return sv;
+                            try { var sv = mp.GetValue(val, null); if (sv != null) return sv; } catch { }
                         }
-                        var mm = vt.GetMethod("GetValueAsString");
-                        if (mm != null)
+                        foreach (var name in new[] { "GetValueAsString", "GetDisplayString", "ToString" })
                         {
-                            var sv = mm.Invoke(val, null);
-                            if (sv != null) return sv;
+                            var methods = vt.GetMethods().Where(mi => mi.Name == name).ToArray();
+                            foreach (var mi in methods)
+                            {
+                                var ps = mi.GetParameters();
+                                try
+                                {
+                                    object result = null;
+                                    if (ps.Length == 0)
+                                        result = mi.Invoke(val, null);
+                                    else if (ps.Length == 1)
+                                        result = mi.Invoke(val, new object[] { true });
+                                    else if (ps.Length == 2)
+                                        result = mi.Invoke(val, new object[] { true, null });
+                                    if (result != null) return result;
+                                }
+                                catch { }
+                            }
                         }
                     }
 
-                    return val;
+                    return val is string ? val : val.ToString();
                 }
 
                 // Last resort: ToString if it seems meaningful

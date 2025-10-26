@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Autodesk.Navisworks.Api.ComApi;
+using System.Reflection;
 using Autodesk.Navisworks.Api;
 using Autodesk.Navisworks.Api.Plugins;
 using OfficeOpenXml;
@@ -17,6 +19,7 @@ namespace NavisExcelExporter
     public class FullModelExportPlugin : AddInPlugin
     {
         private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly string DebugLogPath = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), "NavisExporterDebug.log");
         public override int Execute(params string[] parameters)
         {
             try
@@ -216,34 +219,20 @@ namespace NavisExcelExporter
                     data["Z Coordinate"] = "";
                 }
 
-                // Add all properties as separate columns
+                // Add all properties (including nested/compound) as separate columns
                 var propertyCategories = item.PropertyCategories;
                 foreach (var category in propertyCategories)
                 {
                     string categoryName = category.DisplayName;
-                    
-                    foreach (var property in category.Properties)
+                    foreach (var prop in category.Properties)
                     {
-                        try
-                        {
-                            string propertyKey = $"{categoryName}.{property.DisplayName}";
-                            string propertyValue = property.Value.ToDisplayString();
-
-                            // Add to all keys set for column tracking
-                            allPropertyKeys.Add(propertyKey);
-
-                            // Store value
-                            if (!string.IsNullOrEmpty(propertyValue))
-                            {
-                                data[propertyKey] = propertyValue;
-                            }
-                        }
-                        catch
-                        {
-                            continue;
-                        }
+                        try { AddPropertyRecursive(data, allPropertyKeys, categoryName, prop); }
+                        catch { /* skip and continue */ }
                     }
                 }
+
+                // Enrich via COM GUI properties (captures values shown in Properties palette like AutoCAD Geometry)
+                EnrichWithGuiProperties(item, data, allPropertyKeys);
             }
             catch (Exception ex)
             {
@@ -251,6 +240,192 @@ namespace NavisExcelExporter
             }
 
             return data;
+        }
+        
+        private void AddPropertyRecursive(Dictionary<string, object> data,
+                                          HashSet<string> allKeys,
+                                          string parentKey,
+                                          DataProperty property)
+        {
+            if (property == null) return;
+
+            string key = string.IsNullOrEmpty(parentKey)
+                ? property.DisplayName
+                : $"{parentKey}.{property.DisplayName}";
+
+            try
+            {
+                if (property.Value != null)
+                {
+                    var display = property.Value.ToDisplayString();
+                    if (!string.IsNullOrEmpty(display))
+                    {
+                        string uniqueKey = GetUniqueKey(key, data);
+                        data[uniqueKey] = display;
+                        allKeys.Add(uniqueKey);
+                    }
+                    else
+                    {
+                        allKeys.Add(key);
+                    }
+                }
+            }
+            catch { allKeys.Add(key); }
+
+            // Recurse into child properties if available
+            try
+            {
+                var childrenProp = property.GetType().GetProperty("Children");
+                if (childrenProp != null)
+                {
+                    var children = childrenProp.GetValue(property, null) as System.Collections.IEnumerable;
+                    if (children != null)
+                    {
+                        foreach (var child in children)
+                        {
+                            if (child is DataProperty dpChild)
+                                AddPropertyRecursive(data, allKeys, key, dpChild);
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private string GetUniqueKey(string baseKey, Dictionary<string, object> data)
+        {
+            if (!data.ContainsKey(baseKey)) return baseKey;
+            int i = 2;
+            while (data.ContainsKey($"{baseKey} ({i})")) i++;
+            return $"{baseKey} ({i})";
+        }
+
+        private void EnrichWithGuiProperties(ModelItem item,
+                                             Dictionary<string, object> data,
+                                             HashSet<string> allKeys)
+        {
+            try
+            {
+                var state = ComApiBridge.State;
+                var path = ComApiBridge.ToInwOaPath(item);
+                dynamic guiNode = state.GetGUIPropertyNode(path, true);
+                if (guiNode == null) return;
+
+                System.Collections.IEnumerable categories = null;
+                try { categories = guiNode.GUIAttributes(); } catch { }
+                if (categories == null) return;
+                if (categories == null) return;
+
+                foreach (dynamic cat in categories)
+                {
+                    string catName = TryGetName(cat);
+                    if (string.IsNullOrWhiteSpace(catName)) continue;
+
+                    System.Collections.IEnumerable props = null;
+                    try { props = cat.Properties(); } catch { }
+                    if (props == null)
+                    {
+                        try { props = guiNode.Properties(cat); } catch { }
+                    }
+                    if (props == null) continue;
+
+                    foreach (dynamic p in props)
+                    {
+                        string propName = TryGetName(p);
+                        if (string.IsNullOrWhiteSpace(propName)) continue;
+                        object val = TryGetValue(p);
+                        string key = $"{catName}.{propName}";
+                        string uniqueKey = GetUniqueKey(key, data);
+                        if (val != null)
+                        {
+                            data[uniqueKey] = Convert.ToString(val);
+                        }
+                        else
+                        {
+                            data[uniqueKey] = "";
+                        }
+                        allKeys.Add(uniqueKey);
+                        if (System.Environment.GetEnvironmentVariable("NAVIS_EXPORT_DEBUG") == "1")
+                        {
+                            try { System.IO.File.AppendAllText(DebugLogPath, $"[COM] {key} => '{Convert.ToString(val) ?? "<null>"}'\r\n"); } catch { }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignore COM failures; .NET extraction remains
+            }
+        }
+
+        private string TryGetName(object o)
+        {
+            if (o == null) return null;
+            try
+            {
+                var t = o.GetType();
+                var p = t.GetProperty("DisplayName") ?? t.GetProperty("displayname") ?? t.GetProperty("Name") ?? t.GetProperty("name") ?? t.GetProperty("UserName") ?? t.GetProperty("username");
+                if (p != null)
+                {
+                    var v = p.GetValue(o, null);
+                    if (v != null) return v.ToString();
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private object TryGetValue(object o)
+        {
+            if (o == null) return null;
+            try
+            {
+                var t = o.GetType();
+                // Prefer explicit string-returning members
+                var m = t.GetMethod("GetValueAsString") ?? t.GetMethod("get_DisplayString") ?? t.GetMethod("GetDisplayString");
+                if (m != null)
+                {
+                    var s = m.Invoke(o, null);
+                    if (s != null) return s;
+                }
+
+                var p = t.GetProperty("DisplayString") ?? t.GetProperty("displaystring") ??
+                        t.GetProperty("StringValue") ?? t.GetProperty("stringvalue") ??
+                        t.GetProperty("ValueString") ?? t.GetProperty("valuestring") ??
+                        t.GetProperty("Text") ?? t.GetProperty("text") ??
+                        t.GetProperty("value") ?? t.GetProperty("Value");
+                if (p != null)
+                {
+                    var val = p.GetValue(o, null);
+                    if (val == null) return null;
+
+                    // If COM object, try common string accessors
+                    var vt = val.GetType();
+                    if (vt.FullName == "System.__ComObject")
+                    {
+                        var mp = vt.GetProperty("DisplayString") ?? vt.GetProperty("StringValue") ?? vt.GetProperty("ValueString");
+                        if (mp != null)
+                        {
+                            var sv = mp.GetValue(val, null);
+                            if (sv != null) return sv;
+                        }
+                        var mm = vt.GetMethod("GetValueAsString");
+                        if (mm != null)
+                        {
+                            var sv = mm.Invoke(val, null);
+                            if (sv != null) return sv;
+                        }
+                    }
+
+                    return val;
+                }
+
+                // Last resort: ToString if it seems meaningful
+                var ts = o.ToString();
+                if (!string.IsNullOrWhiteSpace(ts) && ts != "System.__ComObject") return ts;
+            }
+            catch { }
+            return null;
         }
 
         private string ExtractGuidFromProperties(ModelItem item)

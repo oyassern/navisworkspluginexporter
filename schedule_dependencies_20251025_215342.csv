@@ -1,0 +1,167 @@
+ScheduleActivityID,ActivityScheduleTaskID,Rel,TaskType,Predecessor,PredecessorScheduleTaskID
+CWA ASU-1A00 - Install Concrete,6,FS,Construct,CWA ASU-1A00 - Install Piling,1
+CWA ASU-1A00 - Install Grout,27,FS,Construct,CWA ASU-1A00 - Install Concrete,6
+CWA ASU-1A00 - Install Piling,1,FS,Construct,,
+CWA ASU-1A00 - Install Piping Insulation,31,FS,Construct,,
+CWA ASU-1A01 - Install Cable Tray,26,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9
+CWA ASU-1A01 - Install Electrical,32,FS,Construct,CWA ASU-1A01 - Install Piping,29
+CWA ASU-1A01 - Install Instrumentation,33,FS,Construct,CWA ASU-1A01 - Install Piping,29
+CWA ASU-1A01 - Install Misc Steel,10,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9
+CWA ASU-1A01 - Install Piling,1,FS,Construct,,
+CWA ASU-1A01 - Install Piping,29,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9
+CWA ASU-1A01 - Install Piping Insulation,31,FS,Construct,CWA ASU-1A01 - Install Piping,29
+CWA ASU-1A01 - Install Primary Steel,9,FS,Construct,CWA ASU-1A01 - Install Piling,1
+CWA ASU-1A01 - Install UG Conduit,8,FS,Construct,,
+CWA ASU-1A01 - Set 101-V207,,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9
+CWA ASU-1A01 - Set 101-V208,,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9
+CWA ASU-1A02 - Install Cable Tray,26,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Install Concrete,6,FS,Construct,CWA ASU-1A02 - Install UG Conduit,8
+CWA ASU-1A02 - Install Concrete,6,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Electrical,32,FS,Construct,CWA ASU-1A02 - Install Piping,29
+CWA ASU-1A02 - Install Grout,27,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Install Grout,27,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Instrumentation,33,FS,Construct,CWA ASU-1A02 - Install Piping,29
+CWA ASU-1A02 - Install Misc Steel,10,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Install Piling,1,FS,Construct,,
+CWA ASU-1A02 - Install Piping,29,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Install Piping Insulation,31,FS,Construct,CWA ASU-1A02 - Install Piping,29
+CWA ASU-1A02 - Install Primary Steel,9,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Primary Steel,9,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-1,21,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-1,21,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-1,21,FS,Construct,CWA ASU-1A02 - Install UG Conduit,8
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-2,21,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-2,21,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-2,21,FS,Construct,CWA ASU-1A02 - Install UG Conduit,8
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-3,21,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-3,21,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Transformer - VM-ASU-P132-3,21,FS,Construct,CWA ASU-1A02 - Install UG Conduit,8
+CWA ASU-1A02 - Install Transformer - VM-ASU-P232,21,FS,Construct,CWA ASU-1A02 - Install Piling,1
+CWA ASU-1A02 - Install Transformer - VM-ASU-P232,21,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Install Transformer - VM-ASU-P232,21,FS,Construct,CWA ASU-1A02 - Install UG Conduit,8
+CWA ASU-1A02 - Install UG Conduit,8,FS,Construct,,
+CWA ASU-1A02 - Set 101-E162,,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Set 101-E162,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-E163,,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Set 101-E163,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-G171A,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-G171B,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-K111,,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Set 101-K111,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-K131,,FS,Construct,,
+CWA ASU-1A02 - Set 101-P292 ASU PDC BUILDING,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-P297-LCI ASU LCI BUILDING,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-V102_V104 MAC INLET FILTER_SILENCER,,FS,Construct,,
+CWA ASU-1A02 - Set 101-V113,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-V133,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-V134,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 101-V135,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 251-P236-3 1.5MVA XFMER,,FS,Construct,CWA ASU-1A02 - Install Concrete,6
+CWA ASU-1A02 - Set 251-P416-3 AUTOLOAD BUILDING,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set 251-P614,,FS,Construct,,
+CWA ASU-1A02 - Set D111- MAC MOTOR,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set D131- BAC MOTOR,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set OVER HEAD CRANE,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set P222-1 MV Switchgear,20,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set P222-2 MV Switchgear,20,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set P412-1,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set P412E,,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A02 - Set P422-2 LV Switchgear,20,FS,Construct,CWA ASU-1A02 - Install Primary Steel,9
+CWA ASU-1A03 - Install Cable Tray,26,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Install Concrete,6,FS,Construct,CWA ASU-1A03 - Install Piling,1
+CWA ASU-1A03 - Install Electrical,32,FS,Construct,CWA ASU-1A03 - Install Piping,29
+CWA ASU-1A03 - Install Grout,27,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Install Grout,27,FS,Construct,CWA ASU-1A03 - Set Equipment,23
+CWA ASU-1A03 - Install Grout,27,FS,Construct,CWA ASU-1A03 - Install Concrete,6
+CWA ASU-1A03 - Install Instrumentation,33,FS,Construct,CWA ASU-1A03 - Set Equipment,23
+CWA ASU-1A03 - Install Instrumentation,33,FS,Construct,CWA ASU-1A03 - Install Piping,29
+CWA ASU-1A03 - Install Misc Steel,10,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Install Piling,1,FS,Construct,,
+CWA ASU-1A03 - Install Piping,29,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Install Piping Insulation,31,FS,Construct,CWA ASU-1A03 - Install Piping,29
+CWA ASU-1A03 - Install Primary Steel,9,FS,Construct,CWA ASU-1A03 - Install Piling,1
+CWA ASU-1A03 - Install Primary Steel,9,FS,Construct,CWA ASU-1A03 - Install Concrete,6
+CWA ASU-1A03 - Set 101-C171 CHILLED WATER TOWER,,FS,Construct,CWA ASU-1A03 - Install Concrete,6
+CWA ASU-1A03 - Set 101-C171 CHILLED WATER TOWER,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set 101-C182A TSA ADSORBER VESSEL,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set 101-C182B TSA ADSORBER VESSEL,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set 101-E182,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set 101-V184 DEPRESSURIZATION  VENT SILENCER,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set 101-V185 REACTIVATION VENT SILENCER,,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A03 - Set AHU-1 HVAC,,FS,Construct,,
+CWA ASU-1A03 - Set AHU-2,,FS,Construct,,
+CWA ASU-1A03 - Set Equipment,23,FS,Construct,CWA ASU-1A03 - Install Piling,1
+CWA ASU-1A03 - Set Equipment,23,FS,Construct,CWA ASU-1A03 - Install Concrete,6
+CWA ASU-1A03 - Set Equipment,23,FS,Construct,CWA ASU-1A03 - Install Primary Steel,9
+CWA ASU-1A04 - Install Cable Tray,26,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Install Concrete,6,FS,Construct,CWA ASU-1A04 - Install Piling,1
+CWA ASU-1A04 - Install Electrical,32,FS,Construct,CWA ASU-1A04 - Install Piping,29
+CWA ASU-1A04 - Install Grout,27,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Install Grout,27,FS,Construct,CWA ASU-1A04 - Install Concrete,6
+CWA ASU-1A04 - Install Instrumentation,33,FS,Construct,CWA ASU-1A04 - Install Piping,29
+CWA ASU-1A04 - Install Misc Steel,10,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Install Piling,1,FS,Construct,,
+CWA ASU-1A04 - Install Piping,29,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Install Piping Insulation,31,FS,Construct,CWA ASU-1A04 - Install Piping,29
+CWA ASU-1A04 - Install Primary Steel,9,FS,Construct,CWA ASU-1A04 - Install Piling,1
+CWA ASU-1A04 - Install Primary Steel,9,FS,Construct,CWA ASU-1A04 - Install Concrete,6
+CWA ASU-1A04 - Set 101-C211,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-C212,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E201A,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E201B,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E201C,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E201D,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E217,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E2172,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E221,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E222,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E262,,FS,Construct,CWA ASU-1A04 - Install Primary Steel,9
+CWA ASU-1A04 - Set 101-E871,,FS,Construct,,
+CWA ASU-1A05 - Civil Works,7,FS,Construct,,
+CWA ASU-1A05 - Install Cable Tray,26,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Install Concrete,6,FS,Construct,CWA ASU-1A05 - Install UG Conduit,8
+CWA ASU-1A05 - Install Concrete,6,FS,Construct,CWA ASU-1A05 - Install Piling,1
+CWA ASU-1A05 - Install Electrical,32,FS,Construct,CWA ASU-1A05 - Install Piping,29
+CWA ASU-1A05 - Install Grout,27,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Install Grout,27,FS,Construct,CWA ASU-1A05 - Install Concrete,6
+CWA ASU-1A05 - Install Instrumentation,33,FS,Construct,CWA ASU-1A05 - Install Piping,29
+CWA ASU-1A05 - Install Misc Steel,10,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Install Piling,1,FS,Construct,,
+CWA ASU-1A05 - Install Piping,29,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Install Piping Insulation,31,FS,Construct,CWA ASU-1A05 - Install Piping,29
+CWA ASU-1A05 - Install Primary Steel,9,FS,Construct,CWA ASU-1A05 - Install Piling,1
+CWA ASU-1A05 - Install Primary Steel,9,FS,Construct,CWA ASU-1A05 - Install Concrete,6
+CWA ASU-1A05 - Install UG Conduit,8,FS,Construct,,
+CWA ASU-1A05 - Set 101-C625 LOX FBT RELIEF DUMP TANK,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-C681 GOX BUFFER VESSEL,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-C725 LIN FBT RELIEF DUMP TANK,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E621 LOX AMBIENT VAPORISER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E628 LOX STORAGE TANK PBU,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E649 LOX VAPORISER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E721 LIN AMBIENT VAPORISER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E728 LP LIN STORAGE TANK PBU,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E739 LIN STORAGE TANK PBU,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E747A HP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E747B HP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E748 HP GAN TRIM HEATER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E749 N2 STEAM SPARGED VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E753 LP GAN TRIM HEATER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754A LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754B LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754C LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754D LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754E LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-E754F LP LIN AMBIENT VAPORIZER,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-G741B,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-G991A WASTE WATER LIFT PUMP,,FS,Construct,,
+CWA ASU-1A05 - Set 101-G991B WASTE WATER LIFT PUMP,,FS,Construct,,
+CWA ASU-1A05 - Set 101-K661A GOX Booster Compressor,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-K661B GOX Booster Compressor,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-T621 LOX FLAT BOTTOM STORAGE TANK,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-T721 LIN FLAT BOTTOM STORAGE TANK,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-T732 LIN MP STORAGE TANK,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-V891A WEIGH SCALE SYSTEM,,FS,Construct,CWA ASU-1A05 - Install Primary Steel,9
+CWA ASU-1A05 - Set 101-V891B WEIGH SCALE SYSTEM,,FS,Construct,,
+Set U001,,FS,Construct,,
+Set U002,,FS,Construct,,
+Set U003,,FS,Construct,CWA ASU-1A01 - Install Primary Steel,9

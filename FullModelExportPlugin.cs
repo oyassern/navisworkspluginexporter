@@ -53,6 +53,10 @@ namespace NavisExcelExporter
 
                         MessageBox.Show($"Model data exported successfully!\n\nFile saved to:\n{excelFilePath}", 
                             "Export Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        if (selectionForm.StartAutomation)
+                        {
+                            MessageBox.Show("AI Automation workflow initiation requested.\n(This is a placeholder — hook your workflow here.)", "Automation", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                 }
 
@@ -397,6 +401,7 @@ namespace NavisExcelExporter
         private readonly TreeView _tree;
         private readonly Button _okButton;
         private readonly Button _cancelButton;
+        private readonly CheckBox _automationCheck;
 
         public SelectionForm(Document document)
         {
@@ -414,10 +419,13 @@ namespace NavisExcelExporter
 
             _okButton = new Button { Text = "Export", Dock = DockStyle.Right, Width = 100 };
             _cancelButton = new Button { Text = "Cancel", Dock = DockStyle.Right, Width = 100 };
+            _automationCheck = new CheckBox { Text = "Export and start AI Automation", Dock = DockStyle.Left, AutoSize = true };
 
             var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 40 };
+            bottomPanel.Padding = new Padding(8, 10, 8, 8);
             bottomPanel.Controls.Add(_cancelButton);
             bottomPanel.Controls.Add(_okButton);
+            bottomPanel.Controls.Add(_automationCheck);
 
             Controls.Add(_tree);
             Controls.Add(bottomPanel);
@@ -428,6 +436,8 @@ namespace NavisExcelExporter
             _tree.AfterCheck += Tree_AfterCheck;
             _tree.BeforeExpand += Tree_BeforeExpand;
         }
+
+        public bool StartAutomation => _automationCheck.Checked;
 
         private void SelectionForm_Load(object sender, EventArgs e)
         {

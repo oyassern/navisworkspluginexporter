@@ -60,7 +60,7 @@ namespace NavisExcelExporter
                         {
                             try
                             {
-                                SendToN8nAsync(excelFilePath).GetAwaiter().GetResult();
+                                SendToN8nAsync(excelFilePath, selectionForm.StartDate).GetAwaiter().GetResult();
                                 MessageBox.Show("Excel file uploaded to n8n webhook successfully.", "Automation", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                             catch (Exception uploadEx)
@@ -158,7 +158,7 @@ namespace NavisExcelExporter
 			return excelFilePath;
 		}
 
-		private async Task SendToN8nAsync(string excelPath)
+		private async Task SendToN8nAsync(string excelPath, DateTime? startDate)
 		{
 			if (string.IsNullOrWhiteSpace(excelPath) || !File.Exists(excelPath))
 			{
@@ -173,6 +173,13 @@ namespace NavisExcelExporter
 			{
 				fileContent.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 				form.Add(fileContent, "data", Path.GetFileName(excelPath));
+
+				if (startDate.HasValue)
+				{
+					// Send date as ISO date (yyyy-MM-dd)
+					var dateContent = new StringContent(startDate.Value.ToString("yyyy-MM-dd"));
+					form.Add(dateContent, "startDate");
+				}
 
 				var response = await _httpClient.PostAsync(webhookUrl, form).ConfigureAwait(false);
 				response.EnsureSuccessStatusCode();
@@ -437,12 +444,14 @@ namespace NavisExcelExporter
         private readonly Button _okButton;
         private readonly Button _cancelButton;
         private readonly CheckBox _automationCheck;
+        private readonly DateTimePicker _startDatePicker;
+        private readonly Label _startDateLabel;
 
         public SelectionForm(Document document)
         {
             _document = document;
             Text = "Select Items to Export";
-            Size = new System.Drawing.Size(500, 600);
+            Size = new System.Drawing.Size(500, 480);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.SizableToolWindow;
 
@@ -452,27 +461,85 @@ namespace NavisExcelExporter
                 CheckBoxes = true
             };
 
-            _okButton = new Button { Text = "Export", Dock = DockStyle.Right, Width = 100 };
-            _cancelButton = new Button { Text = "Cancel", Dock = DockStyle.Right, Width = 100 };
-			_automationCheck = new CheckBox { Text = "Export and start AI Automation", Dock = DockStyle.Left, AutoSize = true, Checked = true };
+            _okButton = new Button { Text = "Export", AutoSize = true, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            _cancelButton = new Button { Text = "Cancel", AutoSize = true, Anchor = AnchorStyles.Right | AnchorStyles.Top };
+            _automationCheck = new CheckBox { Text = "Run AI Automation to generate a time plan", AutoSize = true, Checked = false, Anchor = AnchorStyles.Left | AnchorStyles.Top };
 
-            var bottomPanel = new Panel { Dock = DockStyle.Bottom, Height = 40 };
-            bottomPanel.Padding = new Padding(8, 10, 8, 8);
-            bottomPanel.Controls.Add(_cancelButton);
-            bottomPanel.Controls.Add(_okButton);
-            bottomPanel.Controls.Add(_automationCheck);
+            _startDateLabel = new Label { Text = "Project start:", AutoSize = true, Anchor = AnchorStyles.Left | AnchorStyles.Top };
+            _startDatePicker = new DateTimePicker { Format = DateTimePickerFormat.Short, Width = 120, Anchor = AnchorStyles.Left | AnchorStyles.Top };
+            _startDatePicker.Value = DateTime.Today;
+            _startDatePicker.Enabled = _automationCheck.Checked;
+
+            var bottomLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 76,
+                ColumnCount = 2,
+                RowCount = 1,
+                Padding = new Padding(10),
+            };
+            bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            bottomLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+
+            // Left side: 2-row table (row0: checkbox, row1: label + picker aligned)
+            var leftTable = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 2,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(0),
+                Margin = new Padding(0)
+            };
+            leftTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            leftTable.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            leftTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            leftTable.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            leftTable.Controls.Add(_automationCheck, 0, 0);
+            leftTable.SetColumnSpan(_automationCheck, 2);
+            _automationCheck.Margin = new Padding(0, 4, 8, 4);
+
+            _startDateLabel.Margin = new Padding(0, 4, 8, 4);
+            _startDatePicker.Margin = new Padding(0, 0, 8, 0);
+            leftTable.Controls.Add(_startDateLabel, 0, 1);
+            leftTable.Controls.Add(_startDatePicker, 1, 1);
+
+            // Right side: buttons aligned right
+            var rightFlow = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.RightToLeft,
+                WrapContents = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Padding = new Padding(0),
+                Margin = new Padding(0)
+            };
+            rightFlow.Controls.Add(_okButton);
+            rightFlow.Controls.Add(new Label { Text = "  ", AutoSize = true, Width = 8 }); // spacer
+            rightFlow.Controls.Add(_cancelButton);
+
+            bottomLayout.Controls.Add(leftTable, 0, 0);
+            bottomLayout.Controls.Add(rightFlow, 1, 0);
 
             Controls.Add(_tree);
-            Controls.Add(bottomPanel);
+            Controls.Add(bottomLayout);
 
             Load += SelectionForm_Load;
             _okButton.Click += (s, e) => DialogResult = DialogResult.OK;
             _cancelButton.Click += (s, e) => DialogResult = DialogResult.Cancel;
+            AcceptButton = _okButton;
+            CancelButton = _cancelButton;
             _tree.AfterCheck += Tree_AfterCheck;
             _tree.BeforeExpand += Tree_BeforeExpand;
+            _automationCheck.CheckedChanged += (s, e) => { _startDatePicker.Enabled = _automationCheck.Checked; };
+            _startDatePicker.Enabled = _automationCheck.Checked;
         }
 
         public bool StartAutomation => _automationCheck.Checked;
+        public DateTime? StartDate => _automationCheck.Checked ? _startDatePicker.Value.Date : (DateTime?)null;
 
         private void SelectionForm_Load(object sender, EventArgs e)
         {
